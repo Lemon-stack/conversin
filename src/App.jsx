@@ -94,7 +94,8 @@ Post:`;
   
   return (
     <>
-      <div className="flex flex-col space-y-4">
+      <div className="flex space-y-4 justify-envenly px-[8%] pt-10">
+        <div className="flex flex-col space-y-4 mr-8">
         <h2>Post Style</h2>
         <div className="flex space-x-4">
           <button 
@@ -130,7 +131,9 @@ Post:`;
             Generate Post
           </button>
         </form>
+        </div>
         {generatedPost && (
+          
           <div className="mt-4 p-4 border rounded">
             <h3 className="font-semibold text-lg text-start mb-4">Generated Post:</h3>
             <div className="flex flex-col justify-start text-start" dangerouslySetInnerHTML={{ __html: generatedPost }} />
