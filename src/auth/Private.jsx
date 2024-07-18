@@ -1,5 +1,5 @@
 // src/components/PrivateRoute.js
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import { useSelector } from "react-redux";
 import { useEffect } from "react";
