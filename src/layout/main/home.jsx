@@ -8,7 +8,7 @@ export default function Home() {
         <div className="hidden lg:block lg:w-[14%]">
           <Left />
           </div>
-        <div className="lg:w-[86%] flex flex-col">
+        <div className="w-full lg:w-[86%] flex flex-col">
           <Top/>
         <Outlet />
           </div>  
