@@ -1,5 +1,5 @@
 export default function Translate(){
     return(
-        <div>Translate</div>
+        <div className="w-full">Translate</div>
     )
 }

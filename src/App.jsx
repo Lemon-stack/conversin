@@ -7,7 +7,11 @@ import { onAuthStateChanged } from "firebase/auth";
 import { signInSuccess, signOut } from "./reducers/googleSigninSlice";
 import { auth } from "./client/firebase";
 import Dashboard from "./layout/main/dashboard";
-import Paraphrase from "./layout/features/paraphrase";
+const Help = lazy(() => import("./layout/main/guide"));
+const Paraphrase = lazy(() =>
+  import("./layout/features/tool-features/paraphrase")
+);
+const Plans = lazy(() => import("./layout/features/plan"));
 const Generator = lazy(() =>
   import("./layout/features/tool-features/generator")
 );
@@ -46,13 +50,15 @@ export default function App() {
           <Route index element={<Hero />} />
           <Route path="/d" element={<PrivateRoute element={<Outlet />} />}>
             <Route path="dashboard" element={<Home />}>
-              <Route index element={<Dashboard />} />
+              <Route path="main" element={<Dashboard />} />
               <Route path="generate" element={<Generator />} />
               <Route path="translate" element={<Translate />} />
               <Route path="paraphrase" element={<Paraphrase />} />
+              <Route path="plans" element={<Plans />} />
+              <Route path="guide" element={<Help />} />
             </Route>
           </Route>
-          <Route path="/login" element={<Login />} />
+          <Route path="login" element={<Login />} />
         </Route>
       </Routes>
     </Suspense>

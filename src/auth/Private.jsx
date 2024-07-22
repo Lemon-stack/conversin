@@ -5,17 +5,18 @@ import { useSelector } from "react-redux";
 import { useEffect } from "react";
 
 export default function PrivateRoute({ element }) {
+  const navigate = useNavigate();
   const isSignedIn = useSelector((state) => state.googleSignin);
-const navigate = useNavigate()
-  useEffect(() => {
-    if (isSignedIn == null) {
-      return element;
-    } else {
-      navigate ("/login");
-    }
-  }, [isSignedIn, element,navigate]);
-}
 
+  useEffect(() => {
+    if (!isSignedIn) {
+      navigate("/login");
+    }
+  }, [isSignedIn, navigate]);
+
+  // Return the element if signed in
+  return isSignedIn ? element : null;
+}
 PrivateRoute.propTypes = {
   element: PropTypes.element.isRequired,
 };

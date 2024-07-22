@@ -1,12 +1,11 @@
 // import { Toggle } from "@/components/ui/toggle";
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import { useRef, useState } from "react";
 
+import { useRef, useState } from "react";
+import generateContent from "@/api/generateContent";
 export default function Generator() {
   const promptRef = useRef();
   const [postStyle, setPostStyle] = useState("standard");
   const [generatedPost, setGeneratedPost] = useState("");
-
   //convert results
   function processMarkdown(text) {
     // Convert headers
@@ -30,9 +29,6 @@ export default function Generator() {
     return text;
   }
 
-  const API_KEY = import.meta.env.VITE_GAPI;
-  const genAI = new GoogleGenerativeAI(API_KEY);
-
   const contextPrompt = `As an AI LinkedIn post creator, generate engaging, professional content optimized for the platform, you'd use less of emojis. Focus on delivering value to the audience.`;
 
   const stylePrompts = {
@@ -54,7 +50,7 @@ Create a short, punchy LinkedIn post that grabs attention quickly:
 - Focus on ONE clear, valuable takeaway for professionals
 - Use a 'smart casual' tone for writing
 - Wrap up with a brief call-to-action or thought-provoking question
-- use 2 relevant hashtags, but don't overdo it`,
+- use 2 relevant hashtags, but don't overdo it!`,
 
     elaborate: `
 Create an insightful LinkedIn post (~250-300 words):
@@ -70,29 +66,20 @@ Keep it smart and engaging, Aim to start a conversation, not deliver a lecture. 
 
   async function handleSubmit(e) {
     e.preventDefault();
-    const post = await generateLinkedInPost(promptRef.current.value);
+    const userPrompt = promptRef.current.value;
+    const fullPrompt = `${contextPrompt}${stylePrompts[postStyle]}. Create a LinkedIn post about: ${userPrompt}`;
+    const post = await generateLinkedInPost(fullPrompt);
     setGeneratedPost(post);
   }
 
-  async function generateLinkedInPost(userPrompt) {
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-
-    const fullPrompt = `${contextPrompt}
-
-${stylePrompts[postStyle]}
-
-Create a LinkedIn post about: ${userPrompt}
-
-Post:`;
-
-    const result = await model.generateContent(fullPrompt);
+  async function generateLinkedInPost(Prompt) {
+    const result = await generateContent(Prompt);
     const response = await result.response;
     return processMarkdown(response.text());
   }
-
   return (
     <>
-      <div className="flex space-y-4 justify-envenly px-[8%] pt-10">
+      <div className="flex justify-envenly px-[8%] pt-10">
         <div className="flex flex-col space-y-4 mr-8">
           <h2>Post Style</h2>
           <div className="flex space-x-4">

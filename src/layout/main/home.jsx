@@ -1,15 +1,17 @@
 import { Outlet } from "react-router-dom";
-import Top from "../nav/top";
 import Left from "../nav/left";
+import Top from "../nav/top";
 
 export default function Home() {
   return (
-    <div className="w-screen h-screen">
-      <Top />
-      <section className="flex">
-        <Left />
+      <div className="flex w-full min-h-screen">
+        <div className="hidden lg:block lg:w-[14%]">
+          <Left />
+          </div>
+        <div className="lg:w-[86%] flex flex-col">
+          <Top/>
         <Outlet />
-      </section>
-    </div>
+          </div>  
+      </div>
   );
 }
