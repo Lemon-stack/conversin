@@ -7,6 +7,7 @@ import { useEffect } from "react";
 export default function PrivateRoute({ element }) {
   const navigate = useNavigate();
   const isSignedIn = useSelector((state) => state.googleSignin);
+  console.log(isSignedIn)
   useEffect(() => {
     if (isSignedIn !== false ) {
       navigate("/d/dashboard/main");
@@ -14,7 +15,7 @@ export default function PrivateRoute({ element }) {
   }, [isSignedIn, navigate]);
 
   // Return the element if signed in
-  return isSignedIn !== false ? element : <Navigate to="/login" />;
+  return isSignedIn == false ? element :  navigate("/login");
 }
 PrivateRoute.propTypes = {
   element: PropTypes.element.isRequired,
