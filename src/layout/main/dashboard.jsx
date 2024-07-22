@@ -3,26 +3,26 @@ import { Link } from "react-router-dom";
 export default function Dashboard() {
   const links = [
     {
-      img: "1",
+      id: "1",
       header: "Hashtags",
       desc: "Enter a post and Postin would generate would generate a list of relevant hashtags for your post",
       image: "/hashtag.svg",
       linkTo: "/d/dashboard/generate",
     },
     {
-      img: "1",
+      id: "2",
       header: "Translate",
       desc: "Enter a post and Postin will translate to the language of your choice",
       image: "/translate.svg",
       linkTo: "/d/dashboard/guide",
     },
     {
-      img: "1",
+      id: "3",
       header: "Translate",
       desc: "Enter a post and Postin will translate to the language of your choice",
       image: "/translate.svg",
       linkTo: "/d/dashboard/guide",
-    }
+    },
   ];
   const profile = useSelector((state) => state.googleSignin);
   const username = profile.user?.displayName;
@@ -42,7 +42,11 @@ export default function Dashboard() {
               Start generating content
             </button>
           </div>
-          <img className="sm:w-[28%] lg:w-[30%] hidden sm:block" src="/dashboard-wall.svg" alt="" />
+          <img
+            className="sm:w-[28%] lg:w-[30%] hidden sm:block"
+            src="/dashboard-wall.svg"
+            alt=""
+          />
         </section>
       </div>
 
@@ -53,7 +57,7 @@ export default function Dashboard() {
         </h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 bg-gray-100/70 p-1.5 rounded-lg">
           {links.map((link) => (
-            <Link key={link.id} to={link.linkTo}>
+            <Link  key={link.id} to={link.linkTo}>
               <div className="flex flex-col min-h-48 justify-start shadow-md bg-gray-50 rounded-lg p-5">
                 <img className="w-10 h-10" src={link.image} alt="" />
                 <h3 className="text-xl font-bold text-teal-500">
