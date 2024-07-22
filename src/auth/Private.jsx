@@ -1,5 +1,5 @@
 // src/components/PrivateRoute.js
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import { useSelector } from "react-redux";
 import { useEffect } from "react";
@@ -10,12 +10,13 @@ export default function PrivateRoute({ element }) {
 
   useEffect(() => {
     if (!isSignedIn) {
+      console.log("not in")
       navigate("/login");
     }
   }, [isSignedIn, navigate]);
 
   // Return the element if signed in
-  return isSignedIn ? element : null;
+  return !isSignedIn ? element : <Navigate to="/login" />;
 }
 PrivateRoute.propTypes = {
   element: PropTypes.element.isRequired,

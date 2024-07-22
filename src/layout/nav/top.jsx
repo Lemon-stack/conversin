@@ -21,7 +21,7 @@ export default function Top() {
   const profile = useSelector((state) => state.googleSignin);
   const username = profile.user?.displayName;
   return (
-    <section className="flex items-center w-full justify-between lg:justify-end flex-row-reverse py-2 shadow-md mb-4">
+    <section className="flex items-center max-w-full justify-between lg:justify-end flex-row-reverse py-2 shadow-md mb-4">
       <div className="z-20 py-0.5 px-2 rounded-md">
         <NavigationMenu>
           <NavigationMenuList>
