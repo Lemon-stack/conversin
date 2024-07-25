@@ -6,77 +6,49 @@ export default function Generator() {
   const promptRef = useRef();
   const [postStyle, setPostStyle] = useState("standard");
   const [generatedPost, setGeneratedPost] = useState("");
-  //convert results
-  function processMarkdown(text) {
-    // Convert headers
-    text = text.replace(/^###\s(.*)$/gm, "<h3>$1</h3>");
-    text = text.replace(/^##\s(.*)$/gm, "<h2>$1</h2>");
-    text = text.replace(/^#\s(.*)$/gm, "<h1>$1</h1>");
 
-    // Convert bold
-    text = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-
-    // Convert italic
-    text = text.replace(/\*(.*?)\*/g, "<em>$1</em>");
-
-    // Convert lists
-    text = text.replace(/^\s*-\s(.*)$/gm, "<li>$1</li>");
-    text = text.replace(/(<li>.*<\/li>)/s, "<ul>$1</ul>");
-
-    // Convert line breaks
-    text = text.replace(/\n/g, "<br>");
-
-    return text;
-  }
-
-  const contextPrompt = `As an AI LinkedIn post creator, generate engaging, professional content optimized for the platform, you'd use less of emojis. Focus on delivering value to the audience.`;
+  const contextPrompt = `Create an engaging, professional LinkedIn post. Minimal emojis. Deliver value.`;
 
   const stylePrompts = {
     standard: `
-Create a balanced LinkedIn post (120-200 words):
-- Open with an engaging hook, don't overdo it
-- Focus on one main idea or insight
-- Use a conversational tone, less of jagons
-- Include a brief example or data point if relevant
-- End with a question or call-to-action
-- Add 2-3 relevant non-pascal cased hashtags
-
-Aim for the sweet spot between concise and elaborate. Make it informative and engaging, like a regular conversation`,
+LinkedIn post (120-200 words):
+- Engaging hook
+- One main idea
+- Conversational tone
+- Example or data point
+- Question or call-to-action
+- 2-3 relevant hashtags
+Informative yet conversational`,
 
     concise: `
-Create a short, punchy LinkedIn post that grabs attention quickly:
-- Aim for about 80-100 words
-- Start with a zinger - something that makes people stop scrolling
-- Focus on ONE clear, valuable takeaway for professionals
-- Use a 'smart casual' tone for writing
-- Wrap up with a brief call-to-action or thought-provoking question
-- use 2 relevant hashtags, but don't overdo it!`,
+Short LinkedIn post (80-100 words):
+- Attention-grabbing opener
+- One clear takeaway
+- Smart casual tone
+- Brief call-to-action or question
+- 2 hashtags
+Punchy and valuable`,
 
     elaborate: `
-Create an insightful LinkedIn post (~250-300 words):
-- Start with an attention-grabbing opener
-- Dive into 3-4 key points, backed by data or examples
-- Explain the industry impact
-- Offer practical, actionable advice
-- End with a thought-provoking question
-- Include 2-3 relevant hashtags (lowercase)
-
-Keep it smart and engaging, Aim to start a conversation, not deliver a lecture. Make it meaty but readable!`,
+Insightful LinkedIn post (250-300 words):
+- Attention-grabbing opener
+- 3-4 key points with data/examples
+- Industry impact
+- Practical advice
+- Thought-provoking question
+- 2-3 hashtags
+Engaging and conversation-starting`,
   };
 
   async function handleSubmit(e) {
     e.preventDefault();
     const userPrompt = promptRef.current.value;
     const fullPrompt = `${contextPrompt}${stylePrompts[postStyle]}. Create a LinkedIn post about: ${userPrompt}`;
-    const post = await generateLinkedInPost(fullPrompt);
-    setGeneratedPost(post);
+
+    const result = await generateContent(fullPrompt);
+    setGeneratedPost(result);
   }
 
-  async function generateLinkedInPost(Prompt) {
-    const result = await generateContent(Prompt);
-    const response = await result.response;
-    return processMarkdown(response.text());
-  }
   return (
     <>
       <div className="flex justify-envenly px-[8%] pt-10">

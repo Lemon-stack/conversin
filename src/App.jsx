@@ -33,6 +33,7 @@ export default function App() {
             displayName: user.displayName,
             email: user.email,
             photoURL: user.photoURL,
+            credits: user.credits,
           })
         );
       } else {
