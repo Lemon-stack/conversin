@@ -12,7 +12,7 @@ const Message = ({ message }) => {
     >
 
       <Avatar className="size-6 border absolute top-0 -left-8">
-        <AvatarImage className="p-0.5" src={`${message.name === userName? message.avatar:"/Postin-logo.png"}`} />
+        <AvatarImage className="p-0.5 rounded-full" src={`${message.name === userName? message.avatar:"/Postin-logo.png"}`} />
         <AvatarFallback className="text-zinc-900">CN</AvatarFallback>
       </Avatar>
 
