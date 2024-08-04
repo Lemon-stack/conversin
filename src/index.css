@@ -4,14 +4,32 @@
 @tailwind utilities;
 
 body {
-  font-family: "Basic", 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f9fafb;
+  font-family: "Basic", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #060607;
   /* green : #2ec4b6 */
 }
-.active {
-  color: #fff;
-  background-color: #2ec4b5ad;
+
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+  width: 8px;
+   background: transparent;
+  
 }
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background:#0694a2; /* Change the track color */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #0694a2;
+}
+
+/* Firefox scrollbar styles */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #ece9e9 #18181b;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

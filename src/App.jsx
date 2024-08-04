@@ -1,4 +1,5 @@
 import { Routes, Route, Outlet } from "react-router-dom";
+import "flowbite";
 import Hero from "./layout/hero";
 import { lazy, Suspense, useEffect } from "react";
 import PrivateRoute from "./auth/Private";
@@ -6,21 +7,9 @@ import { useDispatch } from "react-redux";
 import { onAuthStateChanged } from "firebase/auth";
 import { signInSuccess, signOut } from "./reducers/googleSigninSlice";
 import { auth } from "./client/firebase";
-import Dashboard from "./layout/main/dashboard";
-const Help = lazy(() => import("./layout/main/guide"));
-const Paraphrase = lazy(() =>
-  import("./layout/features/tool-features/paraphrase")
-);
-const Plans = lazy(() => import("./layout/features/plan"));
-const Generator = lazy(() =>
-  import("./layout/features/tool-features/generator")
-);
-const Translate = lazy(() =>
-  import("./layout/features/tool-features/translate")
-);
+import Layout from "./layout/layoutContainer";
 const Login = lazy(() => import("./auth/login"));
-const Home = lazy(() => import("./layout/main/home"));
-const Spinner = lazy(() => import("./layout/Spinner"));
+const Spinner = lazy(() => import("./layout/sub-components/Spinner"));
 export default function App() {
   const dispatch = useDispatch();
 
@@ -49,14 +38,19 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Outlet />}>
           <Route index element={<Hero />} />
-          <Route path="/d" element={<PrivateRoute element={<Outlet />} />}>
-            <Route path="dashboard" element={<Home />}>
-              <Route path="main" element={<Dashboard />} />
-              <Route path="generate" element={<Generator />} />
-              <Route path="translate" element={<Translate />} />
-              <Route path="paraphrase" element={<Paraphrase />} />
-              <Route path="plans" element={<Plans />} />
-              <Route path="guide" element={<Help />} />
+          <Route
+            path="/d"
+            element={
+              <PrivateRoute
+                element={
+                  <Suspense fallback={<Spinner />}>
+                    <Outlet />
+                  </Suspense>
+                }
+              />
+            }
+          >
+            <Route path="dashboard" element={<Layout />}>
             </Route>
           </Route>
           <Route path="login" element={<Login />} />

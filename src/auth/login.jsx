@@ -14,7 +14,7 @@ export default function Login() {
 
   useEffect(() => {
     if (profile?.user) {
-      navigate('/d/dashboard/main');
+      navigate('/d/dashboard');
     }
   }, [profile.user, navigate]);
 
@@ -22,7 +22,7 @@ export default function Login() {
     dispatch(signInStart());
     try {
       await signInWithPopup(auth, new GoogleAuthProvider());
-      navigate('/d/dashboard/main');
+      navigate('/d/dashboard');
     } catch (err) {
       dispatch(signInFailure(err.message));
     }
