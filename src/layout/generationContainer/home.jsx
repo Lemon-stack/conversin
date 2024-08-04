@@ -102,6 +102,7 @@ export default function Main() {
           <Message key={message.id} message={message} />
         ))}
       </section>
+
       <span className="min-h-[4.2rem] bg-[#0d0d0f] z-20 w-full absolute bottom-0"></span>
       <div className="w-full absolute bottom-6 z-20 flex px-[6%] md:px-[20%] rounded-md">
         <form
@@ -135,7 +136,7 @@ export default function Main() {
               </svg>
             </button>
           ) : (
-            <button className="bg-teal-500 px-5 z-30 h-9 rounded-xl">
+            <button className="bg-teal-500 px-5 z-30 h-9 cursor-wait rounded-xl">
               <svg
                 aria-hidden="true"
                 className="size-5 text-gray-50 animate-spin"
