@@ -1,7 +1,8 @@
 import { useSelector } from "react-redux";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { memo } from "react";
 
-const Message = ({ message }) => {
+const Message = memo( function Message({ message }) {
   const profile = useSelector((state) => state.googleSignin);
   const userName = profile.user?.displayName;
   return (
@@ -24,23 +25,7 @@ const Message = ({ message }) => {
       </div>
       {message.name === "Postin" ? (
         <section className="flex justify-end gap-1">
-          <div className="bg-teal-500 hover:bg-teal-700 cursor-pointer rounded-md p-1">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.8}
-              stroke="currentColor"
-              className="size-4"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25"
-              />
-            </svg>
-          </div>
-          <div className="bg-teal-500 hover:bg-teal-700 cursor-pointer rounded-md p-1">
+          <div className="bg-teal-500 opacity-20 transition-opacity ease-in hover:opacity-100 cursor-pointer rounded-md p-1">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -56,11 +41,28 @@ const Message = ({ message }) => {
               />
             </svg>
           </div>
+          <div className="bg-teal-500 opacity-20 transition-opacity ease-in hover:opacity-100 cursor-pointer rounded-md p-1">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.8}
+              stroke="currentColor"
+              className="size-4"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25"
+              />
+            </svg>
+          </div>
+          
         </section>
       ) : (
         ""
       )}
     </div>
   );
-};
+});
 export default Message;

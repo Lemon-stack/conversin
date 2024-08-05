@@ -23,8 +23,7 @@ export default function Main() {
   // // Create a reference to the 'messages' collection inside the user's document
   // const userMessagesRef = collection(db, `${profile.user?.uid}/messages`);
 
-  async function sendMessage(e) {
-    e.preventDefault();
+  async function sendMessage() {
     setIsGenerating(true);
     const messageText = messageRef?.current.value.trim();
     if (messageText === "") {
@@ -48,11 +47,12 @@ export default function Main() {
   }
 
   async function aiResponse(message) {
-    const prompt = `You're a conversational LinkedIn post manager.
-    Based on this text: ${message},
-    - If the post requires a CTA, provide a space to add a link.
-    Then create a post based on this with 50-100 words.`;
-    const result = await generateContent(prompt);
+    const prompt = `You're a conversational AI for crafting LinkedIn posts. Ask how you can assist. Explain briefly that you're here to help create engaging posts through conversation.
+    avoid unneecessary jagons and maintain mid-casual
+
+Current context: ${message}`;
+    
+const result = await generateContent(prompt);
     try {
       await addDoc(collection(db, `users/${profile.user?.uid}/messages`), {
         text: result,
@@ -64,7 +64,7 @@ export default function Main() {
     } catch (e) {
       console.log(e);
     }
-    setIsGenerating(false)
+    setIsGenerating(false);
   }
 
   useEffect(() => {
@@ -107,12 +107,21 @@ export default function Main() {
       <div className="w-full absolute bottom-6 z-20 flex px-[6%] md:px-[20%] rounded-md">
         <form
           className="w-full flex bg-zinc-900 items-end rounded-xl p-2.5"
-          onSubmit={sendMessage}
+          onSubmit={(e) => {
+            e.preventDefault();
+            sendMessage();
+          }}
         >
           <textarea
             ref={messageRef}
             className="custom-scrollbar w-full border-0 mr-1.5 flex items-center bg-zinc-900 z-30 focus:ring-0 max-h-24 outline-none  text-gray-50 rounded-lg shadow-sm resize-none"
             placeholder="Type your message here..."
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+              }
+            }}
           />
 
           {!isGenerating ? (
@@ -136,7 +145,7 @@ export default function Main() {
               </svg>
             </button>
           ) : (
-            <button className="bg-teal-500 px-5 z-30 h-9 cursor-wait rounded-xl">
+            <button className="bg-teal-500 px-5 z-30 h-9 cursor-not-allowed rounded-xl">
               <svg
                 aria-hidden="true"
                 className="size-5 text-gray-50 animate-spin"
