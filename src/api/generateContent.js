@@ -45,10 +45,11 @@
 // export default generateContent;
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
+const API_KEY = import.meta.env.VITE_GAPI;
+const genAI = new GoogleGenerativeAI(API_KEY);
+
 
 const generateContent = async (userPrompt) => {
-  const API_KEY = import.meta.env.VITE_GAPI;
-  const genAI = new GoogleGenerativeAI(API_KEY);
 
   // Convert Markdown to HTML
   function processMarkdown(text) {
@@ -90,5 +91,48 @@ const generateContent = async (userPrompt) => {
     return processMarkdown(response)
 };
 
-export default generateContent;
 
+
+const generateName = async (userPrompt) => {
+
+
+  // Convert Markdown to HTML
+  function processMarkdown(text) {
+    // Convert headers
+    text = text.replace(/^###\s+(.*)$/gm, "<h3>$1</h3>");
+    text = text.replace(/^##\s+(.*)$/gm, "<h2>$1</h2>");
+    text = text.replace(/^#\s+(.*)$/gm, "<h1>$1</h1>");
+    
+    // Convert bold and italic
+    text = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+    text = text.replace(/\*(.*?)\*/g, "<em>$1</em>");
+    
+    // Convert lists
+    text = text.replace(/^\s*-\s+(.*)$/gm, "<li>$1</li>");
+    
+    // Wrap <li> elements with <ul>
+    text = text.replace(/(<li>.*<\/li>)/gs, "<ul>$1</ul>");
+    
+    // Remove multiple <ul> tags
+    text = text.replace(/<\/ul>\s*<ul>/g, '');
+    
+    // Convert line breaks to <br> and handle consecutive breaks
+    text = text.replace(/\n\n+/g, "</p><p>");
+    text = text.replace(/\n/g, "<br>");
+    
+    // Wrap paragraphs in <p> tags, but avoid extra <p> tags
+    text = "<p>" + text + "</p>";
+    text = text.replace(/<p><\/p>/g, ''); // Remove empty paragraphs
+    text = text.replace(/<\/p>\s*<p>/g, "</p><p>");
+    
+    return text;
+}
+
+
+  const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const result = await model.generateContent(userPrompt);
+    const response = await result.response.text();
+    return processMarkdown(response)
+};
+
+export {generateContent, generateName}

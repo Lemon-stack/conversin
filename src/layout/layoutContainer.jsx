@@ -1,4 +1,5 @@
-import Main from "./generationContainer/home";
+import { collection, doc, onSnapshot, query } from "firebase/firestore";
+
 import {
   Sheet,
   SheetContent,
@@ -7,8 +8,46 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { db } from "@/client/firebase";
+import { useEffect, useRef, useState } from "react";
+import { useSelector } from "react-redux";
+import { Outlet } from "react-router-dom";
 
 export default function Layout() {
+  const profile = useSelector((state) => state.googleSignin);
+  const [history, setHistory] = useState([]);
+  let chatRef = "chat1";
+
+  let docRef;
+
+  if (profile.user?.uid) {
+    docRef = doc(db, `users/${profile.user?.uid}/chatHistory/${chatRef}`);
+  }
+
+  useEffect(() => {
+    if (!docRef) {
+      return;
+    }
+    const q = query(
+      collection(db, `users/${profile.user?.uid}/chatHistory`) // Path to collection
+    );
+
+    const history = onSnapshot(q, (QuerySnapshot) => {
+      const fetchedHistory = [];
+      QuerySnapshot.forEach((doc) => {
+        fetchedHistory.push({ ...doc.data(), id: doc.id });
+      });
+      // Sort messages by createdAt field
+      const sortedHistory = fetchedHistory.sort((a, b) => {
+        const aDate = new Date(a.createdAt);
+        const bDate = new Date(b.createdAt);
+        return aDate - bDate;
+      });
+      setHistory(sortedHistory);
+    });
+    return () => history();
+  }, [docRef, profile.user?.uid]);
+
   return (
     <div className="grid lg:grid-cols-[19%_1fr]">
       <div className="hidden w-full lg:flex flex-col p-4 text-gray-100">
@@ -33,6 +72,13 @@ export default function Layout() {
             </svg>
             <span className="text-sm">New chat</span>
           </button>
+          {history?.map((history) => (
+            <div className="" key={history.id}>
+              <button className="w-full flex px-2 text-sm py-1">
+                {history.id}
+              </button>
+            </div>
+          ))}
         </section>
       </div>
 
@@ -58,14 +104,14 @@ export default function Layout() {
           <SheetHeader>
             <SheetTitle>No fear</SheetTitle>
             <SheetDescription>
-              No fear bigman, I still dey do the needful for here!
-              Hope say e dey go as you want?
+              No fear bigman, I still dey do the needful for here! Hope say e
+              dey go as you want?
             </SheetDescription>
           </SheetHeader>
         </SheetContent>
       </Sheet>
 
-      <Main />
+      <Outlet context={{ docRef }} />
     </div>
   );
 }

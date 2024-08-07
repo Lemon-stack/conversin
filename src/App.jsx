@@ -8,6 +8,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { signInSuccess, signOut } from "./reducers/googleSigninSlice";
 import { auth } from "./client/firebase";
 import Layout from "./layout/layoutContainer";
+import Main from "./layout/generationContainer/home";
 const Login = lazy(() => import("./auth/login"));
 const Spinner = lazy(() => import("./layout/sub-components/Spinner"));
 export default function App() {
@@ -51,6 +52,7 @@ export default function App() {
             }
           >
             <Route path="dashboard" element={<Layout />}>
+              <Route path="c/:chatId" element={<Main />} />
             </Route>
           </Route>
           <Route path="login" element={<Login />} />

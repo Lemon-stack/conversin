@@ -2,22 +2,18 @@ import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { db } from "@/client/firebase";
 import {
-  arrayUnion,
-  doc,
+  addDoc,
+  collection,
+  limit,
   onSnapshot,
+  orderBy,
   query,
-  updateDoc,
+  serverTimestamp,
 } from "firebase/firestore";
 import { generateContent, generateName } from "@/api/generateContent";
 import Message from "./message";
-import { useOutletContext, useParams } from "react-router-dom";
 
-export default function Main() {
-  const { docRef } = useOutletContext();
-
-  const { chatId } = useParams();
-  // time record for sent messages
-  const date = Date();
+export default function Main({collectionRef}) {
   const [messages, setMessages] = useState([]);
 
   const [isGenerating, setIsGenerating] = useState(false);
@@ -26,12 +22,13 @@ export default function Main() {
   const messageRef = useRef();
   const profile = useSelector((state) => state.googleSignin);
   const userName = profile.user?.displayName;
-  // // Create a reference to the 'messages' collection inside the user's document
 
-  // async function getFolderName() {
-  //   const prompt = `summarise this text in a maximum of 4 words`;
-  //   const result = await generateName();
-  // }
+  // // Create a reference to the 'messages' collection inside the user's document
+ 
+  async function getFolderName(){
+    const prompt = `summarise this text in a maximum of 4 words`
+   const result = await generateName()
+  }
   async function sendMessage() {
     setIsGenerating(true);
     const messageText = messageRef?.current.value.trim();
@@ -41,18 +38,13 @@ export default function Main() {
     }
     try {
       // Add the message to the 'messages' subcollection of the user's document
-      const userMessage = {
+      await addDoc(collectionRef, {
         text: messageText,
         name: userName,
         avatar: profile.user?.photoURL,
-        createdAt: date,
+        createdAt: serverTimestamp(),
         uid: profile.user?.uid,
-      };
-
-      const res = await updateDoc(docRef, {
-        messages: arrayUnion(userMessage),
       });
-      console.log(res);
       aiResponse(messageText);
       messageRef.current.value = "";
     } catch (err) {
@@ -61,23 +53,19 @@ export default function Main() {
   }
 
   async function aiResponse(message) {
-    const prompt = `You're a conversational AI for crafting LinkedIn posts. You're to help in creating engaging posts through conversation.
+    const prompt = `You're a conversational AI for crafting LinkedIn posts. Ask how you can assist. Explain briefly that you're here to help create engaging posts through conversation.
     avoid unneecessary jagons and maintain mid-casual
 
 Current context: ${message}`;
 
     const result = await generateContent(prompt);
     try {
-      const aiResponse = {
+      await addDoc(collectionRef, {
         text: result,
         name: "Postin",
         avatar: " ",
-        createdAt: date,
+        createdAt: serverTimestamp(),
         uid: "1",
-      };
-
-      await updateDoc(docRef, {
-        messages: arrayUnion(aiResponse),
       });
     } catch (e) {
       console.log(e);
@@ -88,49 +76,47 @@ Current context: ${message}`;
   useEffect(() => {
     if (!profile.user?.uid) return; // Ensure uid is available
 
-        const q = query(doc(
-          db,
-          `users/${profile.user?.uid}/chatHistory/${chatId}`
-        ));
+    // Create a query to get the messages from the 'messages' collection inside the user's document
+    const q = query(
+      collection(db, `users/${profile.user?.uid}/messages`), // Path to collection
+      orderBy("createdAt", "desc"),
+      limit(50)
+    );
 
-        const unsubscribe = onSnapshot(q, (docSnapshot) => {
-          if (docSnapshot.exists()) {
-            const fetchedMessages = docSnapshot.data().messages || [];
-            
-            // Sort messages by createdAt field
-            const sortedMessages = fetchedMessages.sort((a, b) => {
-              const aDate = new Date(a.createdAt);
-              const bDate = new Date(b.createdAt);
-              return aDate - bDate;
-            });
+    const unsubscribe = onSnapshot(q, (QuerySnapshot) => {
+      const fetchedMessages = [];
+      QuerySnapshot.forEach((doc) => {
+        fetchedMessages.push({ ...doc.data(), id: doc.id });
+      });
+      const sortedMessages = fetchedMessages.sort(
+        (a, b) =>
+          (a.createdAt?.toMillis() || 0) - (b.createdAt?.toMillis() || 0)
+      );
+      setMessages(sortedMessages);
+    });
+
+    // checking users stay time-stay
+    // const handleVisibilityChange = () => {
+    //   if (document.hidden) {
+    //     // User leaves the app
+    //     setLastLeaveTime(Date.now());
+    //   } else {
+    //     // User returns to the app
+    //     if (lastLeaveTime) {
+    //       const timeSpentAway = Date.now() - lastLeaveTime;
+    //       setTimeAway(prevTimeAway => prevTimeAway + timeSpentAway);
+    //     }
+    //     setLastLeaveTime(null); // Reset last leave time
+    //   }
+    // };
+
+    // document.addEventListener('visibilitychange', handleVisibilityChange);
+
     
-            setMessages(sortedMessages);
-          }
-        });
-    
-
-    return ()=> unsubscribe()
-  }, [profile.user?.uid, chatId]);
-
-  // checking users stay time-stay
-  // const handleVisibilityChange = () => {
-  //   if (document.hidden) {
-  //     // User leaves the app
-  //     setLastLeaveTime(Date.now());
-  //   } else {
-  //     // User returns to the app
-  //     if (lastLeaveTime) {
-  //       const timeSpentAway = Date.now() - lastLeaveTime;
-  //       setTimeAway(prevTimeAway => prevTimeAway + timeSpentAway);
-  //     }
-  //     setLastLeaveTime(null); // Reset last leave time
-  //   }
-  // };
-
-  // document.addEventListener('visibilitychange', handleVisibilityChange);
-
-  // document.removeEventListener('visibilitychange', handleVisibilityChange);
-
+    return () => {unsubscribe();
+      // document.removeEventListener('visibilitychange', handleVisibilityChange);
+    }
+  }, [profile.user?.uid]);
   // const formatTime = (ms) => {
   //   const seconds = Math.floor(ms / 1000);
   //   const minutes = Math.floor(seconds / 60);
@@ -143,6 +129,7 @@ Current context: ${message}`;
     <div className="text-gray-50 py-2 relative bg-[#0d0d0f] px-auto flex-col flex w-full h-screen items-center">
       <section className="w-full flex justify-end pr-6">
         <p>{userName}</p>
+       
       </section>
       <section className="flex flex-col px-16 max-h-screen overflow-y-scroll custom-scrollbar-two pt-6 pb-24 lg:px-40">
         {messages?.map((message) => (
@@ -156,7 +143,7 @@ Current context: ${message}`;
           className="w-full flex bg-zinc-900 items-end rounded-xl p-2.5"
           onSubmit={(e) => {
             e.preventDefault();
-            sendMessage();
+            getFolderName();
           }}
         >
           <textarea
@@ -166,7 +153,7 @@ Current context: ${message}`;
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
-                sendMessage();
+                getFolderName();
               }
             }}
           />

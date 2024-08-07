@@ -25,7 +25,7 @@ const Message = memo( function Message({ message }) {
       </div>
       {message.name === "Postin" ? (
         <section className="flex justify-end gap-1">
-          <div className="bg-teal-500 opacity-20 transition-opacity ease-in hover:opacity-100 cursor-pointer rounded-md p-1">
+          <div className="bg-teal-500 lg:opacity-20 transition-opacity ease-in hover:opacity-100 cursor-pointer rounded-md p-1">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -41,7 +41,7 @@ const Message = memo( function Message({ message }) {
               />
             </svg>
           </div>
-          <div className="bg-teal-500 opacity-20 transition-opacity ease-in hover:opacity-100 cursor-pointer rounded-md p-1">
+          <div className="bg-teal-500 lg:opacity-20 transition-opacity ease-in hover:opacity-100 cursor-pointer rounded-md p-1">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"

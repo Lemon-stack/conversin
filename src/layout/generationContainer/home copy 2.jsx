@@ -3,18 +3,23 @@ import { useSelector } from "react-redux";
 import { db } from "@/client/firebase";
 import {
   arrayUnion,
+  collection,
   doc,
+  FieldValue,
+  Firestore,
+  getDoc,
+  limit,
   onSnapshot,
+  orderBy,
   query,
+  serverTimestamp,
   updateDoc,
 } from "firebase/firestore";
 import { generateContent, generateName } from "@/api/generateContent";
 import Message from "./message";
-import { useOutletContext, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
-export default function Main() {
-  const { docRef } = useOutletContext();
-
+export default function Main({ docRef }) {
   const { chatId } = useParams();
   // time record for sent messages
   const date = Date();
@@ -45,10 +50,9 @@ export default function Main() {
         text: messageText,
         name: userName,
         avatar: profile.user?.photoURL,
-        createdAt: date,
+        createdAt: serverTimestamp(),
         uid: profile.user?.uid,
       };
-
       const res = await updateDoc(docRef, {
         messages: arrayUnion(userMessage),
       });
@@ -61,7 +65,7 @@ export default function Main() {
   }
 
   async function aiResponse(message) {
-    const prompt = `You're a conversational AI for crafting LinkedIn posts. You're to help in creating engaging posts through conversation.
+    const prompt = `You're a conversational AI for crafting LinkedIn posts. Ask how you can assist. You're to help in creating engaging posts through conversation.
     avoid unneecessary jagons and maintain mid-casual
 
 Current context: ${message}`;
@@ -72,7 +76,7 @@ Current context: ${message}`;
         text: result,
         name: "Postin",
         avatar: " ",
-        createdAt: date,
+        createdAt: serverTimestamp(),
         uid: "1",
       };
 
@@ -88,28 +92,33 @@ Current context: ${message}`;
   useEffect(() => {
     if (!profile.user?.uid) return; // Ensure uid is available
 
-        const q = query(doc(
+    const fetchMessages = async () => {
+      try {
+        const docRef = doc(
           db,
           `users/${profile.user?.uid}/chatHistory/${chatId}`
-        ));
+        );
+        const docSnap = await getDoc(docRef);
 
-        const unsubscribe = onSnapshot(q, (docSnapshot) => {
-          if (docSnapshot.exists()) {
-            const fetchedMessages = docSnapshot.data().messages || [];
-            
-            // Sort messages by createdAt field
-            const sortedMessages = fetchedMessages.sort((a, b) => {
-              const aDate = new Date(a.createdAt);
-              const bDate = new Date(b.createdAt);
-              return aDate - bDate;
-            });
-    
-            setMessages(sortedMessages);
-          }
-        });
-    
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          const fetchedMessages = data.messages || [];
 
-    return ()=> unsubscribe()
+          const sortedMessages = fetchedMessages.sort((a, b) => {
+            const aDate = new Date(a.createdAt);
+            const bDate = new Date(b.createdAt);
+            return aDate - bDate;
+          });
+          setMessages(sortedMessages);
+        } else {
+          console.log("No such document!");
+        }
+      } catch (err) {
+        console.error("Error fetching messages:", err);
+      }
+    };
+
+    fetchMessages();
   }, [profile.user?.uid, chatId]);
 
   // checking users stay time-stay
